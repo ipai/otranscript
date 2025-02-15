@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * General stuff
+ */
+:root {
+  background: #0b0b0c;
+  font-size: 16px;
+  color-scheme: dark;
+}
+
+@media only screen and (min-width: 2000px) {
+  :root {
+    font-size: 22px;
+  }
+}
