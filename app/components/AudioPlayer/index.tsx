@@ -117,7 +117,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
   }, [showVolumeBar]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-3 text-gray-800 transition-colors relative">
+    <div className="w-full mx-auto bg-white rounded-xl shadow-lg p-3 text-gray-800 transition-colors relative">
       <audio
         ref={audioRef}
         src={audioUrl}

@@ -1,134 +1,74 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { AudioPlayer } from './components/AudioPlayer';
-import { TranscriptDisplay } from './components/TranscriptDisplay';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { upload } from '@vercel/blob/client';
 import { UploadProgress } from './components/UploadProgress';
+import { Footer } from './components/Footer';
 
-interface Word {
-  word: string;
-  start: number;
-  end: number;
-}
-
-interface Paragraph {
-  sentences: {
-    text: string;
-    start: number;
-    end: number;
-  }[];
-  num_words: number;
-  start: number;
-  end: number;
-}
-
-const Home = () => {
-  const [audioUrl, setAudioUrl] = useState<string>('');
-  const [currentTime, setCurrentTime] = useState(0);
-  const [words, setWords] = useState<Word[]>([]);
-  const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
+export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStage, setUploadStage] = useState<'uploading' | 'transcribing' | 'done'>('uploading');
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showProgress, setShowProgress] = useState(false);
 
-  useEffect(() => {
-    // Check for active transcription in localStorage
-    const activeTranscript = window.localStorage.getItem('activeTranscript');
-    const activeAudioUrl = window.localStorage.getItem('activeAudioUrl');
-    
-    if (activeTranscript && activeAudioUrl) {
-      try {
-        const data = JSON.parse(activeTranscript);
-        setWords(data.words);
-        if (data.paragraphs) {
-          setParagraphs(data.paragraphs);
-        }
-        setAudioUrl(activeAudioUrl);
-      } catch (error) {
-        console.error('Error restoring transcription state:', error);
-        // Clear invalid data
-        window.localStorage.removeItem('activeTranscript');
-        window.localStorage.removeItem('activeAudioUrl');
-      }
-    }
-  }, []);
-
-  const loadSavedTranscript = async (filename: string) => {
-    try {
-      // Load transcription data
-      const response = await fetch(`/data/${filename}_transcription.json`);
-      if (!response.ok) throw new Error('Failed to load saved transcription');
-      const data = await response.json();
-      setWords(data.words);
-      if (data.paragraphs) {
-        setParagraphs(data.paragraphs);
-      }
-
-      // Set up audio file
-      const audioPath = `/data/${filename}.mp3`;
-      setAudioUrl(audioPath);
-    } catch (error) {
-      console.error('Error loading saved transcription:', error);
-      alert('Failed to load saved transcription');
-    }
-  };
-
-
+  /**
+   * Process an uploaded audio file through the transcription pipeline.
+   * Handles upload progress, transcription status, and redirects to results.
+   * 
+   * @param file The audio file to process
+   */
   const processFile = async (file: File) => {
     setIsLoading(true);
+    setShowProgress(true);
+    setUploadProgress(0);
+    
     try {
-      // Create object URL for audio playback
-      const url = URL.createObjectURL(file);
-      setAudioUrl(url);
-      window.localStorage.setItem('activeAudioUrl', url);
-
-      // Upload to Vercel Blob
-      console.log('Uploading to Vercel Blob...');
       setUploadStage('uploading');
-      const blob = await upload(file.name, file, {
-        access: 'public',
-        handleUploadUrl: '/api/upload',
-        onUploadProgress: (progressEvent: { loaded: number; total: number }) => {
-          const progress = (progressEvent.loaded / progressEvent.total) * 100;
-          setUploadProgress(Math.round(progress));
-        },
-      });
-      
-      console.log('File uploaded to:', blob.url);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      setUploadStage('transcribing');
-      // Process with Deepgram
-      const response = await fetch('/api/transcribe', {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => prev >= 90 ? prev : prev + 10);
+      }, 500);
+
+      const response = await fetch('/api/process', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ audioUrl: blob.url }),
+        body: formData,
       });
 
-      if (!response.ok) throw new Error('Transcript loading failed');
+      // Show upload completion
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Show transcription progress
+      setUploadStage('transcribing');
+      setUploadProgress(0);
+
+      const transcribeInterval = setInterval(() => {
+        setUploadProgress(prev => prev >= 90 ? prev : prev + 5);
+      }, 1000);
 
       const data = await response.json();
-      setWords(data.words);
-      if (data.paragraphs) {
-        setParagraphs(data.paragraphs);
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process file');
       }
       
-      // Save active transcription state
-      window.localStorage.setItem('activeTranscript', JSON.stringify({
-        ...data,
-        blobUrl: blob.url,
-      }));
-      
+      // Show completion
+      clearInterval(transcribeInterval);
+      setUploadProgress(100);
       setUploadStage('done');
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      window.location.href = `/transcript/${data.id}`;
     } catch (error) {
-      console.error('Error transcribing:', error);
-      alert('Failed to transcribe audio');
+      alert(error instanceof Error ? error.message : 'Failed to process audio file');
     } finally {
       setIsLoading(false);
+      setShowProgress(false);
     }
   };
 
@@ -138,36 +78,11 @@ const Home = () => {
     await processFile(file);
   };
 
-  const handleWordClick = useCallback((time: number) => {
-    const audioElement = document.querySelector('audio');
-    if (audioElement) {
-      audioElement.currentTime = time;
-    }
-  }, []);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleNewFileClick = useCallback(() => {
-    // Clear active transcription when starting new
-    window.localStorage.removeItem('activeTranscription');
-    window.localStorage.removeItem('activeAudioUrl');
-    setAudioUrl('');
-    setWords([]);
-    setParagraphs([]);
-    fileInputRef.current?.click();
-  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      // Set the dropped file as the selected file
-      const fileInput = fileInputRef.current;
-      if (fileInput) {
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(acceptedFiles[0]);
-        fileInput.files = dataTransfer.files;
-        // Trigger change event to process the file
-        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-      }
+      processFile(acceptedFiles[0]);
     }
   }, []);
 
@@ -181,7 +96,8 @@ const Home = () => {
   });
 
   return (
-    <main {...getRootProps()} className="min-h-screen p-8 relative pb-16">
+    <div className="min-h-screen relative">
+      <main {...getRootProps()} className="p-8 relative pb-16">
       {isDragActive && (
         <div className="fixed inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-50">
           <div className="text-xl font-medium text-blue-600">
@@ -189,81 +105,44 @@ const Home = () => {
           </div>
         </div>
       )}
-      <div className="fixed bottom-0 left-0 right-0 py-3 px-8 text-sm text-gray-400">
-        <span 
-          onClick={() => {
-            if (process.env.NODE_ENV === 'development') {
-              loadSavedTranscript('19720124_atc_03');
-            }
-          }}
-          className="cursor-pointer hover:text-rose-600 transition-colors"
-        >
-          ©
-        </span>
-        {' '}{new Date().getFullYear()} OTranscript. All rights reserved.
-      </div>
-
+      
       <input
-        ref={fileInputRef}
         type="file"
         accept="audio/*"
         onChange={handleFileUpload}
+        ref={fileInputRef}
         className="hidden"
       />
 
-      {!audioUrl && !isLoading && (
-        <div className="space-y-8">
+      <div className="h-screen flex flex-col">
+        {!showProgress ? (
           <WelcomeScreen 
             onFileSelect={processFile}
             isLoading={isLoading}
-            onLoadDemo={() => loadSavedTranscript('19720124_atc_03')}
+            onLoadDemo={() => {
+              // Redirect to demo transcript
+              window.location.href = '/transcript/19720124_atc_03';
+            }}
           />
-          {isLoading && (
-            <div className="flex justify-center">
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="w-full max-w-xl mx-auto">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+                Processing Your Audio File
+              </h2>
               <UploadProgress 
                 stage={uploadStage}
                 uploadProgress={uploadProgress}
               />
-            </div>
-          )}
-        </div>
-      )}
-
-      {isLoading && (
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="text-2xl font-semibold text-gray-800">
-              Processing your audio...
-            </div>
-            <div className="text-gray-500">
-              This may take a few moments
+              <p className="mt-4 text-sm text-gray-500 text-center">
+                Please wait while we process your file. This may take a few minutes.
+              </p>
             </div>
           </div>
-        </div>
-      )}
-
-      {audioUrl && !isLoading && (
-        <div className="max-w-2xl mx-auto space-y-6">
-          <AudioPlayer
-            audioUrl={audioUrl}
-            onTimeUpdate={setCurrentTime}
-            onNewFileClick={handleNewFileClick}
-          />
-
-          {words.length > 0 && (
-            <TranscriptDisplay
-              words={words}
-              paragraphs={paragraphs}
-              currentTime={currentTime}
-              onWordClick={handleWordClick}
-            />
-          )}
-        </div>
-      )}
-
-
-    </main>
+        )}
+      </div>
+      </main>
+      <Footer />
+    </div>
   );
-};
-
-export default Home;
+}

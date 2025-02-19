@@ -155,7 +155,7 @@ export const TranscriptDisplay = ({
           setAutoCenterEnabled(newState);
           if (newState) centerActiveWord();
         }}
-        className={`auto-center-button ${autoCenterEnabled ? 'auto-center-active' : 'auto-center-inactive'}`}
+        className={`auto-center-button ${autoCenterEnabled ? 'auto-center-active' : ''}`}
         aria-label={`Toggle auto-centering ${autoCenterEnabled ? 'off' : 'on'}`}
       >
         Auto-Center {autoCenterEnabled ? 'On' : 'Off'}

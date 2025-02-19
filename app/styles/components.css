@@ -31,7 +31,7 @@
 
 /* Transcription Display */
 .transcription-container {
-  @apply bg-white rounded-lg shadow-md relative h-[calc(100vh-10.5rem)];
+  @apply bg-white rounded-lg shadow-md relative h-[calc(100vh-11rem)];
 }
 
 .word-highlight {
@@ -39,19 +39,22 @@
 }
 
 .word-highlight-active {
-  @apply bg-blue-200;
+  @apply bg-rose-100 text-rose-600 font-medium;
 }
 
 .word-highlight-inactive {
-  @apply hover:bg-gray-100;
+  @apply hover:bg-amber-50;
 }
 
 .auto-center-button {
-  @apply absolute right-4 top-4 z-20 px-3 py-1.5 rounded-full text-sm font-medium transition-colors;
+  @apply absolute right-4 top-4 z-20 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+    border border-amber-500/50 text-amber-500 backdrop-blur-sm
+    bg-white/30 shadow-sm hover:shadow-md hover:bg-white/50
+    w-[140px] text-center;
 }
 
 .auto-center-active {
-  @apply bg-blue-100 text-blue-800 hover:bg-blue-200;
+  @apply bg-amber-500/90 text-white hover:bg-amber-500 border-transparent backdrop-blur-md;
 }
 
 .auto-center-inactive {
