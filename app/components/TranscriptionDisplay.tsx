@@ -37,7 +37,7 @@ export const TranscriptionDisplay = ({
       {paragraphs ? (
         <div className="space-y-8">
           {paragraphs.map((paragraph, pIndex) => (
-            <div key={pIndex} className="paragraph space-y-3">
+            <div key={pIndex} className="paragraph">
               {paragraph.sentences.map((sentence, sIndex) => {
                 // Find words that belong to this sentence
                 const sentenceWords = words.filter(
@@ -47,7 +47,7 @@ export const TranscriptionDisplay = ({
                 return (
                   <div 
                     key={sIndex} 
-                    className="sentence leading-relaxed"
+                    className="sentence leading-normal inline"
                   >
                     {sentenceWords.map((word, wIndex) => {
                       const isActive = currentTime >= word.start && currentTime <= word.end;
@@ -59,7 +59,7 @@ export const TranscriptionDisplay = ({
                             ${isActive ? 'bg-blue-200' : 'hover:bg-gray-100'}
                             px-0.5 py-0.5 rounded transition-colors duration-200`}
                         >
-                          {word.word}
+                          {word.word}{' '}
                         </span>
                       );
                     })}

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "transcribe": "ts-node -O '{\"module\":\"CommonJS\"}' scripts/transcribe.ts"
+    "transcribe": "ts-node -O '{\"module\":\"CommonJS\"}' scripts/transcribe.ts",
+    "save-transcription": "ts-node -O '{\"module\":\"CommonJS\"}' scripts/save_transcription.ts"
   },
   "dependencies": {
     "@deepgram/sdk": "^3.11.1",
