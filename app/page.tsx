@@ -32,9 +32,25 @@ const Home = () => {
   const [hasLastTranscription, setHasLastTranscription] = useState(false);
 
   useEffect(() => {
-    // Check for last transcription in localStorage
-    const lastTranscription = window.localStorage.getItem('lastTranscriptionData');
-    setHasLastTranscription(!!lastTranscription);
+    // Check for active transcription in localStorage
+    const activeTranscription = window.localStorage.getItem('activeTranscription');
+    const activeAudioUrl = window.localStorage.getItem('activeAudioUrl');
+    
+    if (activeTranscription && activeAudioUrl) {
+      try {
+        const data = JSON.parse(activeTranscription);
+        setWords(data.words);
+        if (data.paragraphs) {
+          setParagraphs(data.paragraphs);
+        }
+        setAudioUrl(activeAudioUrl);
+      } catch (error) {
+        console.error('Error restoring transcription state:', error);
+        // Clear invalid data
+        window.localStorage.removeItem('activeTranscription');
+        window.localStorage.removeItem('activeAudioUrl');
+      }
+    }
   }, []);
 
   const loadSavedTranscription = async (filename: string) => {
@@ -64,6 +80,7 @@ const Home = () => {
       // Create object URL for audio playback
       const url = URL.createObjectURL(file);
       setAudioUrl(url);
+      window.localStorage.setItem('activeAudioUrl', url);
 
       // Process with Deepgram
       const formData = new FormData();
@@ -82,11 +99,8 @@ const Home = () => {
         setParagraphs(data.paragraphs);
       }
       
-      // In development, save the response to localStorage for quick loading
-      if (process.env.NODE_ENV === 'development') {
-        window.localStorage.setItem('lastTranscriptionData', JSON.stringify(data));
-        setHasLastTranscription(true);
-      }
+      // Save active transcription state
+      window.localStorage.setItem('activeTranscription', JSON.stringify(data));
     } catch (error) {
       console.error('Error transcribing:', error);
       alert('Failed to transcribe audio');
@@ -111,6 +125,12 @@ const Home = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleNewFileClick = useCallback(() => {
+    // Clear active transcription when starting new
+    window.localStorage.removeItem('activeTranscription');
+    window.localStorage.removeItem('activeAudioUrl');
+    setAudioUrl('');
+    setWords([]);
+    setParagraphs([]);
     fileInputRef.current?.click();
   }, []);
 
@@ -146,9 +166,20 @@ const Home = () => {
           </div>
         </div>
       )}
-      <div className="fixed bottom-0 left-0 right-0 text-center py-3 text-sm text-gray-400">
-        © {new Date().getFullYear()} OTranscript. All rights reserved.
+      <div className="fixed bottom-0 left-0 right-0 py-3 px-8 text-sm text-gray-400">
+        <span 
+          onClick={() => {
+            if (process.env.NODE_ENV === 'development') {
+              loadSavedTranscription('19720124_atc_03');
+            }
+          }}
+          className="cursor-pointer hover:text-rose-600 transition-colors"
+        >
+          ©
+        </span>
+        {' '}{new Date().getFullYear()} OTranscript. All rights reserved.
       </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -162,12 +193,6 @@ const Home = () => {
           onFileSelect={processFile}
           isLoading={isLoading}
           onLoadDemo={() => loadSavedTranscription('19720124_atc_03')}
-          onLoadLast={() => {
-            const data = JSON.parse(window.localStorage.getItem('lastTranscriptionData')!);
-            setWords(data.words);
-            if (data.paragraphs) setParagraphs(data.paragraphs);
-          }}
-          hasLastTranscription={hasLastTranscription}
         />
       )}
 

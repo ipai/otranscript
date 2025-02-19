@@ -16,7 +16,7 @@ const formatTime = (time: number): string => {
 
 // Get the appropriate volume icon based on volume level and mute state
 const getVolumeIcon = (volume: number, isMuted: boolean) => {
-  const iconClass = "w-5 h-5 text-gray-600";
+  const iconClass = "w-5 h-5 text-gray-700";
   
   if (isMuted) return <IoVolumeMute className={iconClass} />;
   if (volume === 0) return <IoVolumeOff className={iconClass} />;
@@ -121,7 +121,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
         {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors text-white flex-shrink-0"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-rose-600 hover:bg-rose-700 transition-colors text-white flex-shrink-0"
         >
           {isPlaying ? 
             <IoPause className="w-5 h-5" /> : 
@@ -142,7 +142,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
             onClick={handleProgressClick}
           >
             <div 
-              className="absolute h-full bg-blue-500 rounded-full transition-all duration-100"
+              className="absolute h-full bg-gradient-to-r from-rose-600 to-amber-500 rounded-full transition-all duration-100"
               style={{ width: `${(currentTime / duration) * 100}%` }}
             />
           </div>
@@ -172,7 +172,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
                 step="0.01"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-24 accent-blue-500"
+                className="w-24 accent-rose-600"
               />
             </div>
           )}
@@ -180,7 +180,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
 
         {/* Menu Button */}
         <Menu as="div" className="relative ml-1">
-            <MenuButton className="p-2 rounded-full text-gray-600 hover:bg-gray-100 transition-colors">
+            <MenuButton className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors">
               <IoEllipsisVertical className="w-5 h-5" />
             </MenuButton>
             <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
@@ -188,7 +188,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
                 {({ active }) => (
                   <button
                     onClick={onNewFileClick}
-                    className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
+                    className={`${active ? 'bg-rose-50' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
                   >
                     <span className="flex items-center w-full">
                       <IoCloudUpload className="w-5 h-5 mr-2" />
@@ -206,11 +206,11 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
                         audioRef.current.loop = !isRepeatEnabled;
                       }
                     }}
-                    className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
+                    className={`${active ? 'bg-rose-50' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
                   >
                     <span className="flex items-center w-full">
                       {isRepeatEnabled ? (
-                        <IoRepeat className="w-5 h-5 mr-2 text-blue-500" />
+                        <IoRepeat className="w-5 h-5 mr-2 text-rose-600" />
                       ) : (
                         <IoRepeatOutline className="w-5 h-5 mr-2" />
                       )}
