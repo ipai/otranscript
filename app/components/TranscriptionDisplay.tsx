@@ -155,20 +155,13 @@ export const TranscriptionDisplay = ({
           setAutoCenterEnabled(newState);
           if (newState) centerActiveWord();
         }}
-        className={`
-          absolute right-4 top-4 z-10 px-3 py-1.5 
-          rounded-full text-sm font-medium transition-colors
-          ${autoCenterEnabled 
-            ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' 
-            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}
-          z-0
-        `}
+        className={`auto-center-button ${autoCenterEnabled ? 'auto-center-active' : 'auto-center-inactive'}`}
         aria-label={`Toggle auto-centering ${autoCenterEnabled ? 'off' : 'on'}`}
       >
         Auto-Center {autoCenterEnabled ? 'On' : 'Off'}
       </button>
 
-      <div className="bg-white rounded-lg shadow-md relative h-[calc(100vh-10.5rem)]">
+      <div className="transcription-container">
       <div 
         ref={scrollContainerRef}
         className="absolute inset-0 overflow-y-auto scroll-smooth"
@@ -200,9 +193,7 @@ export const TranscriptionDisplay = ({
                           key={`${word.start}-${wIndex}`}
                           onClick={() => onWordClick(word.start)}
                           ref={isActive ? activeWordRef : null}
-                          className={`cursor-pointer inline-block text-gray-900
-                            ${isActive ? 'bg-blue-200' : 'hover:bg-gray-100'}
-                            px-0.5 py-0.5 rounded transition-colors duration-200`}
+                          className={`word-highlight ${isActive ? 'word-highlight-active' : 'word-highlight-inactive'}`}
                         >
                           {word.word}{' '}
                         </span>
@@ -224,9 +215,7 @@ export const TranscriptionDisplay = ({
                 key={`${word.start}-${index}`}
                 onClick={() => onWordClick(word.start)}
                 ref={isActive ? activeWordRef : null}
-                className={`cursor-pointer inline-block text-gray-900
-                  ${isActive ? 'bg-blue-200' : 'hover:bg-gray-100'}
-                  px-0.5 py-0.5 rounded transition-colors duration-200`}
+                className={`word-highlight ${isActive ? 'word-highlight-active' : 'word-highlight-inactive'}`}
               >
                 {word.word}
               </span>

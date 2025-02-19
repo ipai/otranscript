@@ -36,6 +36,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeBar, setShowVolumeBar] = useState(false);
   const [isRepeatEnabled, setIsRepeatEnabled] = useState(false);
+  const [audioOffset, setAudioOffset] = useState(0); // in milliseconds
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -53,7 +54,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
       const time = audioRef.current.currentTime;
       setCurrentTime(time);
       if (onTimeUpdate) {
-        onTimeUpdate(time);
+        onTimeUpdate(time + (audioOffset / 1000));
       }
     }
   };
@@ -183,7 +184,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
             <MenuButton className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors">
               <IoEllipsisVertical className="w-5 h-5" />
             </MenuButton>
-            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
               <MenuItem>
                 {({ active }) => (
                   <button
@@ -219,6 +220,18 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
                   </button>
                 )}
               </MenuItem>
+              <div className="px-4 py-2 text-sm text-gray-700 border-t">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Audio Offset (ms)</label>
+                <input
+                  type="number"
+                  value={audioOffset}
+                  onChange={(e) => setAudioOffset(Number(e.target.value))}
+                  className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  step="10"
+                  min="-5000"
+                  max="5000"
+                />
+              </div>
             </MenuItems>
           </Menu>
         </div>

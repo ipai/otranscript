@@ -29,14 +29,14 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
         <div className="grid grid-cols-2 gap-12 items-center">
           <div className="text-left">
             <div className="space-y-6">
-              <p className="text-sm font-semibold tracking-wider text-rose-700 uppercase">
+              <p className="welcome-subtitle">
                 Audio Transcription Reimagined
               </p>
-              <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r from-rose-800 via-rose-600 to-amber-500 bg-clip-text text-transparent leading-tight">
+              <h1 className="welcome-title">
                 OTranscript
               </h1>
-              <p className="text-xl text-gray-700 leading-relaxed font-light">
-                Transform your <span className="text-rose-700 font-medium">podcasts</span> and <span className="text-amber-700 font-medium">audio content</span> into interactive transcripts that bring your content to life.
+              <p className="welcome-description">
+                Transform your <span className="welcome-highlight">podcasts</span> and <span className="welcome-highlight-alt">audio content</span> into interactive transcripts that bring your content to life.
               </p>
               <p className="text-lg text-gray-600 italic">
                 Navigate hours of content in seconds.
@@ -53,35 +53,27 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
           </div>
         </div>
         <div className="grid grid-cols-3 gap-8 mb-16">
-          <div className="p-6 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
-            <div className="text-rose-700 mb-3 text-lg font-bold tracking-tight">Quick Navigation</div>
-            <p className="text-gray-600 font-light mb-3">Instantly jump to any moment in your audio with a single click. No more tedious scrubbing or guessing timestamps.</p>
-            <p className="text-gray-500 text-sm">Perfect for interviews, lectures, and meeting notes.</p>
+          <div className="feature-card">
+            <div className="feature-card-title text-rose-700">Quick Navigation</div>
+            <p className="feature-card-description">Instantly jump to any moment in your audio with a single click. No more tedious scrubbing or guessing timestamps.</p>
+            <p className="feature-card-subtitle">Perfect for interviews, lectures, and meeting notes.</p>
           </div>
-          <div className="p-6 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
-            <div className="text-amber-700 mb-3 text-lg font-bold tracking-tight">Time-Saving</div>
-            <p className="text-gray-600 font-light mb-3">Transform hours of audio into searchable text in minutes. Find key moments and quotes with unprecedented speed.</p>
-            <p className="text-gray-500 text-sm">Ideal for researchers, journalists, and content creators.</p>
+          <div className="feature-card">
+            <div className="feature-card-title text-amber-700">Time-Saving</div>
+            <p className="feature-card-description">Transform hours of audio into searchable text in minutes. Find key moments and quotes with unprecedented speed.</p>
+            <p className="feature-card-subtitle">Ideal for researchers, journalists, and content creators.</p>
           </div>
-          <div className="p-6 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow">
-            <div className="text-rose-600 mb-3 text-lg font-bold tracking-tight">Interactive Experience</div>
-            <p className="text-gray-600 font-light mb-3">Watch text highlight as audio plays. Click any word to jump to that moment. Your audio comes alive with synchronized text.</p>
-            <p className="text-gray-500 text-sm">Essential for podcasters, students, and accessibility.</p>
+          <div className="feature-card">
+            <div className="feature-card-title text-rose-600">Interactive Experience</div>
+            <p className="feature-card-description">Watch text highlight as audio plays. Click any word to jump to that moment. Your audio comes alive with synchronized text.</p>
+            <p className="feature-card-subtitle">Essential for podcasters, students, and accessibility.</p>
           </div>
         </div>
       </div>
 
       <div 
         {...getRootProps()} 
-        className={`
-          w-full max-w-xl p-8 rounded-lg border 
-          transition-colors duration-200 cursor-pointer
-          flex flex-col items-center justify-center space-y-4 mt-16
-          ${isDragActive 
-            ? 'border-rose-500 bg-rose-50' 
-            : 'border-gray-200 hover:border-rose-500 hover:bg-gray-50'
-          }
-        `}
+        className={`upload-zone ${isDragActive ? 'upload-zone-active' : 'upload-zone-inactive'}`}
       >
         <input {...getInputProps()} />
         
