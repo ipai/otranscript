@@ -50,16 +50,17 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingTranscript.length > 0) {
-      // Increment times_requested for existing transcript
+      // Update times_requested and renew expiration for existing transcript
       await db.update(transcripts)
         .set({
-          timesRequested: (existingTranscript[0].timesRequested ?? 0) + 1
+          timesRequested: (existingTranscript[0].timesRequested ?? 0) + 1,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Renew for 7 days
         })
         .where(eq(transcripts.id, existingTranscript[0].id));
 
       return NextResponse.json({
         id: existingTranscript[0].id,
-        message: 'File already processed'
+        message: 'File already processed, expiration renewed'
       });
     }
 

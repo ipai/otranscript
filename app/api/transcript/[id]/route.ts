@@ -23,6 +23,22 @@ export async function GET(
       );
     }
 
+    // Check if transcript has expired
+    if (record.expiresAt && new Date(record.expiresAt) < new Date()) {
+      return NextResponse.json(
+        { error: 'Transcript has expired' },
+        { status: 410 }  // 410 Gone
+      );
+    }
+
+    // Increment times requested
+    await db
+      .update(transcripts)
+      .set({
+        timesRequested: (record.timesRequested ?? 0) + 1
+      })
+      .where(eq(transcripts.id, id));
+
     // Fetch transcript content
     const transcriptResponse = await fetch(record.transcriptUrl);
     const transcript = await transcriptResponse.json();
@@ -32,7 +48,8 @@ export async function GET(
       audioUrl: record.audioUrl,
       transcriptUrl: record.transcriptUrl,
       transcript,
-      createdAt: record.createdAt,
+      uploadedAt: record.uploadedAt,
+      expiresAt: record.expiresAt,
     });
   } catch (error) {
     console.error('Server error:', error);
