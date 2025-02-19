@@ -97,7 +97,7 @@ export const TranscriptionDisplay = ({
     setTimeout(() => {
       isAutoScrolling.current = false;
     }, SCROLL_ANIMATION_DURATION);
-  }, []);
+  }, [verticalOffset]);
 
   /**
    * Handles manual scroll events and manages auto-centering behavior.

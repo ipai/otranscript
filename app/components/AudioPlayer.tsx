@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { IoPlay, IoPause, IoEllipsisVertical, IoVolumeOff, IoVolumeLow, IoVolumeMedium, IoVolumeHigh, IoVolumeMute, IoRepeat, IoRepeatOutline, IoCloudUpload } from 'react-icons/io5';
+import { IoCloudUpload, IoEllipsisVertical, IoPause, IoPlay, IoRepeat, IoRepeatOutline, IoVolumeHigh, IoVolumeMedium, IoVolumeMute, IoArrowBack, IoVolumeLow, IoVolumeOff } from 'react-icons/io5';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 
 interface AudioPlayerProps {
@@ -37,6 +37,8 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
   const [showVolumeBar, setShowVolumeBar] = useState(false);
   const [isRepeatEnabled, setIsRepeatEnabled] = useState(false);
   const [audioOffset, setAudioOffset] = useState(0); // in milliseconds
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [currentSubmenu, setCurrentSubmenu] = useState<'main' | 'speed' | 'repeat'>('main');
 
   const togglePlayPause = () => {
     if (audioRef.current) {
@@ -69,6 +71,14 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
       return () => audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
     }
   }, [audioUrl]);
+
+  // Update playback speed when it changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
 
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const progressBar = progressRef.current;
@@ -154,7 +164,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
         </div>
 
         {/* Volume Control */}
-        <div className="flex-shrink-0 relative volume-control">
+        <div className="flex-shrink-0 relative volume-control ml-2">
           <button
             onClick={toggleVolumeBar}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -180,61 +190,186 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
         </div>
 
         {/* Menu Button */}
-        <Menu as="div" className="relative ml-1">
-            <MenuButton className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors">
-              <IoEllipsisVertical className="w-5 h-5" />
-            </MenuButton>
-            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-              <MenuItem>
-                {({ active }) => (
-                  <button
-                    onClick={onNewFileClick}
-                    className={`${active ? 'bg-rose-50' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
-                  >
-                    <span className="flex items-center w-full">
-                      <IoCloudUpload className="w-5 h-5 mr-2" />
-                      Upload New File
-                    </span>
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ active }) => (
-                  <button
-                    onClick={() => {
-                      setIsRepeatEnabled(!isRepeatEnabled);
-                      if (audioRef.current) {
-                        audioRef.current.loop = !isRepeatEnabled;
-                      }
-                    }}
-                    className={`${active ? 'bg-rose-50' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
-                  >
-                    <span className="flex items-center w-full">
-                      {isRepeatEnabled ? (
-                        <IoRepeat className="w-5 h-5 mr-2 text-rose-600" />
-                      ) : (
-                        <IoRepeatOutline className="w-5 h-5 mr-2" />
-                      )}
-                      Repeat {isRepeatEnabled ? 'On' : 'Off'}
-                    </span>
-                  </button>
-                )}
-              </MenuItem>
-              <div className="px-4 py-2 text-sm text-gray-700 border-t">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Audio Offset (ms)</label>
-                <input
-                  type="number"
-                  value={audioOffset}
-                  onChange={(e) => setAudioOffset(Number(e.target.value))}
-                  className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-rose-500"
-                  step="10"
-                  min="-5000"
-                  max="5000"
-                />
+        <Menu>
+          {({ open }) => {
+            // Reset submenu when menu closes
+            useEffect(() => {
+              if (!open && currentSubmenu !== 'main') {
+                setCurrentSubmenu('main');
+              }
+            }, [open]);
+
+            return (
+              <div className="relative ml-1">
+                <MenuButton className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors">
+                  <IoEllipsisVertical className="w-5 h-5" />
+                </MenuButton>
+
+                {/* Menu Items */}
+                <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden">
+                  {currentSubmenu === 'main' ? (
+                    <div>
+                      {/* Main Menu */}
+                      <MenuItem>
+                        {() => (
+                          <button
+                            onClick={onNewFileClick}
+                            className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-rose-50"
+                          >
+                            <span className="flex items-center w-full">
+                              <IoCloudUpload className="w-5 h-5 mr-2" />
+                              Upload New File
+                            </span>
+                          </button>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setCurrentSubmenu('repeat');
+                            }}
+                            className={`${active ? 'bg-rose-50' : ''} group flex w-full items-center px-4 py-2 text-sm ${isRepeatEnabled ? 'text-rose-600 font-medium' : 'text-gray-700'}`}
+                          >
+                            <span className="flex items-center w-full">
+                              {isRepeatEnabled ? (
+                                <IoRepeat className="w-5 h-5 mr-2 text-rose-600" />
+                              ) : (
+                                <IoRepeatOutline className="w-5 h-5 mr-2" />
+                              )}
+                              Repeat: {isRepeatEnabled ? 'On' : 'Off'}
+                            </span>
+                          </button>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {() => (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setCurrentSubmenu('speed');
+                            }}
+                            className={`group flex w-full items-center px-4 py-2 text-sm data-[focus]:bg-rose-50 ${playbackSpeed !== 1 ? 'text-rose-600 font-medium' : 'text-gray-700'}`}
+                          >
+                            <span className="flex items-center w-full">
+                              <IoPlay className="w-5 h-5 mr-2" />
+                              Speed: {playbackSpeed}x
+                            </span>
+                          </button>
+                        )}
+                      </MenuItem>
+                      <div className="px-4 py-2 text-sm text-gray-700 border-t">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Audio Offset (ms)</label>
+                        <input
+                          type="number"
+                          value={audioOffset}
+                          onChange={(e) => setAudioOffset(Number(e.target.value))}
+                          className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-rose-500"
+                          step="10"
+                          min="-5000"
+                          max="5000"
+                        />
+                      </div>
+                    </div>
+                  ) : currentSubmenu === 'speed' ? (
+                    <div className="bg-white">
+                      {/* Playback Speed Submenu */}
+                      <div className="border-b border-gray-100">
+                        <MenuItem>
+                          {() => (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setCurrentSubmenu('main');
+                              }}
+                              className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-rose-50"
+                            >
+                              <span className="flex items-center w-full">
+                                <IoArrowBack className="w-5 h-5 mr-2" />
+                                Playback Speed
+                              </span>
+                            </button>
+                          )}
+                        </MenuItem>
+                      </div>
+                      {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((speed) => (
+                        <MenuItem key={speed}>
+                          {() => (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setPlaybackSpeed(speed);
+                                setCurrentSubmenu('main');
+                              }}
+                              className={`${speed === playbackSpeed ? 'text-rose-600 font-medium' : 'text-gray-700'} 
+                                group flex w-full items-center px-4 py-2 text-sm data-[focus]:bg-rose-50`}
+                            >
+                              <span className="flex items-center w-full pl-7">
+                                {speed}x {speed === playbackSpeed && '(current)'}
+                              </span>
+                            </button>
+                          )}
+                        </MenuItem>
+                      ))}
+                    </div>
+                  ) : currentSubmenu === 'repeat' ? (
+                    <div className="bg-white">
+                      {/* Repeat Submenu */}
+                      <div className="border-b border-gray-100">
+                        <MenuItem>
+                          {() => (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setCurrentSubmenu('main');
+                              }}
+                              className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-rose-50"
+                            >
+                              <span className="flex items-center w-full">
+                                <IoArrowBack className="w-5 h-5 mr-2" />
+                                Repeat
+                              </span>
+                            </button>
+                          )}
+                        </MenuItem>
+                      </div>
+                      {[false, true].map((enabled) => (
+                        <MenuItem key={enabled ? 'on' : 'off'}>
+                          {() => (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsRepeatEnabled(enabled);
+                                if (audioRef.current) {
+                                  audioRef.current.loop = enabled;
+                                }
+                                setCurrentSubmenu('main');
+                              }}
+                              className={`${enabled === isRepeatEnabled ? 'text-rose-600 font-medium' : 'text-gray-700'} 
+                                group flex w-full items-center px-4 py-2 text-sm data-[focus]:bg-rose-50`}
+                            >
+                              <span className="flex items-center w-full pl-7">
+                                {enabled ? 'On' : 'Off'} {enabled === isRepeatEnabled && '(current)'}
+                              </span>
+                            </button>
+                          )}
+                        </MenuItem>
+                      ))}
+                    </div>
+                  ) : null}
+                </MenuItems>
               </div>
-            </MenuItems>
-          </Menu>
-        </div>
+            );
+          }}
+        </Menu>
       </div>
+    </div>
   );
 };

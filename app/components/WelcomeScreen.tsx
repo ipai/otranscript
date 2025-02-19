@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface WelcomeScreenProps {
   onFileSelect: (file: File) => void;
@@ -45,11 +46,16 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
           </div>
           <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-r from-rose-800/20 via-rose-600/20 to-amber-500/20 rounded-2xl blur-xl" />
-            <img 
-              src="/images/mic.jpg" 
-              alt="Professional microphone" 
-              className="w-full h-[400px] object-cover rounded-xl shadow-2xl relative"
-            />
+            <div className="relative w-full h-[400px] rounded-xl shadow-2xl overflow-hidden">
+              <Image 
+                src="/images/mic.jpg" 
+                alt="Professional microphone" 
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+                className="object-cover"
+              />
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-8 mb-16">
