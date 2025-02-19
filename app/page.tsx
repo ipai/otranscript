@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { AudioPlayer } from './components/AudioPlayer';
 import { TranscriptDisplay } from './components/TranscriptDisplay';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { compressAudio } from '@/lib/audioCompression';
 
 interface Word {
   word: string;
@@ -29,7 +30,6 @@ const Home = () => {
   const [words, setWords] = useState<Word[]>([]);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasLastTranscript, setHasLastTranscript] = useState(false);
 
   useEffect(() => {
     // Check for active transcription in localStorage
@@ -83,8 +83,14 @@ const Home = () => {
       window.localStorage.setItem('activeAudioUrl', url);
 
       // Process with Deepgram
+      // Compress audio before uploading
+      console.log('Compressing audio...');
+      const compressedAudio = await compressAudio(file);
+      console.log('Original size:', file.size, 'bytes');
+      console.log('Compressed size:', compressedAudio.size, 'bytes');
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedAudio, file.name);
 
       const response = await fetch('/api/transcribe', {
         method: 'POST',
