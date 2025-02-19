@@ -172,8 +172,8 @@ export const TranscriptionDisplay = ({
         ref={scrollContainerRef}
         className="absolute inset-0 overflow-y-auto scroll-smooth"
         style={{ 
-          paddingTop: '200px',
-          paddingBottom: '200px'
+          paddingTop: '10%',
+          paddingBottom: '25%'
         }}
       >
       {/* Paragraph view */}
