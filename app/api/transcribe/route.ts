@@ -3,18 +3,18 @@ import { transcribeAudio } from '@/lib/transcribe';
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const { audioUrl } = await request.json();
 
-    if (!file) {
+    if (!audioUrl) {
       return NextResponse.json(
-        { error: 'No file provided' },
+        { error: 'No audio URL provided' },
         { status: 400 }
       );
     }
 
-    // Convert File to ArrayBuffer and then to Buffer
-    const arrayBuffer = await file.arrayBuffer();
+    // Download the audio file from the Blob store
+    const response = await fetch(audioUrl);
+    const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     console.log('Audio file size:', buffer.byteLength, 'bytes');

@@ -5,7 +5,8 @@ import { useDropzone } from 'react-dropzone';
 import { AudioPlayer } from './components/AudioPlayer';
 import { TranscriptDisplay } from './components/TranscriptDisplay';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { compressAudio } from '@/lib/audioCompression';
+import { upload } from '@vercel/blob/client';
+import { UploadProgress } from './components/UploadProgress';
 
 interface Word {
   word: string;
@@ -30,6 +31,8 @@ const Home = () => {
   const [words, setWords] = useState<Word[]>([]);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadStage, setUploadStage] = useState<'uploading' | 'transcribing' | 'done'>('uploading');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     // Check for active transcription in localStorage
@@ -82,19 +85,28 @@ const Home = () => {
       setAudioUrl(url);
       window.localStorage.setItem('activeAudioUrl', url);
 
+      // Upload to Vercel Blob
+      console.log('Uploading to Vercel Blob...');
+      setUploadStage('uploading');
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        onUploadProgress: (progressEvent: { loaded: number; total: number }) => {
+          const progress = (progressEvent.loaded / progressEvent.total) * 100;
+          setUploadProgress(Math.round(progress));
+        },
+      });
+      
+      console.log('File uploaded to:', blob.url);
+
+      setUploadStage('transcribing');
       // Process with Deepgram
-      // Compress audio before uploading
-      console.log('Compressing audio...');
-      const compressedAudio = await compressAudio(file);
-      console.log('Original size:', file.size, 'bytes');
-      console.log('Compressed size:', compressedAudio.size, 'bytes');
-
-      const formData = new FormData();
-      formData.append('file', compressedAudio, file.name);
-
       const response = await fetch('/api/transcribe', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audioUrl: blob.url }),
       });
 
       if (!response.ok) throw new Error('Transcript loading failed');
@@ -106,7 +118,12 @@ const Home = () => {
       }
       
       // Save active transcription state
-      window.localStorage.setItem('activeTranscript', JSON.stringify(data));
+      window.localStorage.setItem('activeTranscript', JSON.stringify({
+        ...data,
+        blobUrl: blob.url,
+      }));
+      
+      setUploadStage('done');
     } catch (error) {
       console.error('Error transcribing:', error);
       alert('Failed to transcribe audio');
@@ -195,11 +212,21 @@ const Home = () => {
       />
 
       {!audioUrl && !isLoading && (
-        <WelcomeScreen 
-          onFileSelect={processFile}
-          isLoading={isLoading}
-          onLoadDemo={() => loadSavedTranscript('19720124_atc_03')}
-        />
+        <div className="space-y-8">
+          <WelcomeScreen 
+            onFileSelect={processFile}
+            isLoading={isLoading}
+            onLoadDemo={() => loadSavedTranscript('19720124_atc_03')}
+          />
+          {isLoading && (
+            <div className="flex justify-center">
+              <UploadProgress 
+                stage={uploadStage}
+                uploadProgress={uploadProgress}
+              />
+            </div>
+          )}
+        </div>
       )}
 
       {isLoading && (
