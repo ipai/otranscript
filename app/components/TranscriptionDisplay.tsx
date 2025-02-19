@@ -25,6 +25,12 @@ interface TranscriptionDisplayProps {
   transcript?: string;
   currentTime: number;
   onWordClick: (time: number) => void;
+  /**
+   * Vertical offset from center in percentage (-50 to 50).
+   * Positive values move the word up, negative values move it down.
+   * e.g., 20 positions the word 20% above center
+   */
+  verticalOffset?: number;
 }
 
 /**
@@ -37,16 +43,12 @@ const AUTO_REACTIVATION_DELAY = 5000;
  */
 const SCROLL_ANIMATION_DURATION = 1000;
 
-/**
- * TranscriptionDisplay component displays a scrollable transcript with auto-centering
- * capability for the currently active word. It supports both paragraph and word views,
- * and allows users to toggle automatic centering behavior.
- */
 export const TranscriptionDisplay = ({
   words,
   paragraphs,
   currentTime,
   onWordClick,
+  verticalOffset = 25,
 }: TranscriptionDisplayProps) => {
   // Reference to the scrollable container element
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -68,13 +70,28 @@ export const TranscriptionDisplay = ({
    * Sets isAutoScrolling flag during the animation to prevent manual scroll detection.
    */
   const centerActiveWord = React.useCallback(() => {
+    const clampedOffset = Math.max(-50, Math.min(50, verticalOffset));
     if (!activeWordRef.current || !scrollContainerRef.current) return;
     
     isAutoScrolling.current = true;
-    activeWordRef.current.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'center'
+    const container = scrollContainerRef.current;
+    const wordElement = activeWordRef.current;
+    
+    if (!container || !wordElement) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const wordRect = wordElement.getBoundingClientRect();
+    
+    // Calculate the target scroll position with offset
+    const offsetPixels = (containerRect.height * clampedOffset) / 100;
+    const targetY = container.scrollTop + 
+                   (wordRect.top - containerRect.top) - 
+                   (containerRect.height / 2) + 
+                   offsetPixels;
+
+    container.scrollTo({
+      top: targetY,
+      behavior: 'smooth'
     });
     
     setTimeout(() => {
