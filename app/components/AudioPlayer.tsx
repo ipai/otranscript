@@ -1,9 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
-import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaEllipsisV } from 'react-icons/fa';
+import { Menu } from '@headlessui/react';
 
 interface AudioPlayerProps {
   audioUrl: string;
   onTimeUpdate?: (currentTime: number) => void;
+  onNewFileClick?: () => void;
 }
 
 const formatTime = (time: number): string => {
@@ -12,7 +14,7 @@ const formatTime = (time: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-export const AudioPlayer = ({ audioUrl, onTimeUpdate }: AudioPlayerProps) => {
+export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -87,7 +89,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate }: AudioPlayerProps) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 text-gray-800">
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-4 text-gray-800">
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -96,45 +98,48 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate }: AudioPlayerProps) => {
         className="hidden"
       />
       
-      {/* Progress Bar */}
-      <div 
-        ref={progressRef}
-        className="w-full h-2 bg-gray-100 rounded-full mb-4 cursor-pointer relative overflow-hidden"
-        onClick={handleProgressClick}
-      >
-        <div 
-          className="absolute h-full bg-blue-500 rounded-full transition-all duration-100"
-          style={{ width: `${(currentTime / duration) * 100}%` }}
-        />
-      </div>
+      <div className="flex items-center space-x-4">
+        {/* Play/Pause Button */}
+        <button
+          onClick={togglePlayPause}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors text-white flex-shrink-0"
+        >
+          {isPlaying ? 
+            <FaPause className="w-4 h-4" /> : 
+            <FaPlay className="w-4 h-4 ml-0.5" />
+          }
+        </button>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          {/* Play/Pause Button */}
-          <button
-            onClick={togglePlayPause}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 transition-colors text-white"
-          >
-            {isPlaying ? 
-              <FaPause className="w-5 h-5" /> : 
-              <FaPlay className="w-5 h-5 ml-1" />
-            }
-          </button>
-
+        <div className="flex-grow flex items-center space-x-4">
           {/* Time Display */}
-          <div className="text-sm font-medium">
-            {formatTime(currentTime)} / {formatTime(duration)}
+          <div className="text-sm font-medium w-20 flex-shrink-0">
+            {formatTime(currentTime)}
+          </div>
+
+          {/* Progress Bar */}
+          <div 
+            ref={progressRef}
+            className="flex-grow h-2 bg-gray-100 rounded-full cursor-pointer relative overflow-hidden"
+            onClick={handleProgressClick}
+          >
+            <div 
+              className="absolute h-full bg-blue-500 rounded-full transition-all duration-100"
+              style={{ width: `${(currentTime / duration) * 100}%` }}
+            />
+          </div>
+
+          <div className="text-sm font-medium w-20 flex-shrink-0 text-right">
+            {formatTime(duration)}
           </div>
         </div>
 
         {/* Volume Controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={toggleMute}
-            className="p-2 text-gray-600 hover:text-blue-500 transition-colors"
+            className="p-1 text-gray-600 hover:text-blue-500 transition-colors"
           >
-            {isMuted ? <FaVolumeMute className="w-5 h-5" /> : <FaVolumeUp className="w-5 h-5" />}
+            {isMuted ? <FaVolumeMute className="w-4 h-4" /> : <FaVolumeUp className="w-4 h-4" />}
           </button>
           <input
             type="range"
@@ -143,8 +148,26 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate }: AudioPlayerProps) => {
             step="0.1"
             value={volume}
             onChange={handleVolumeChange}
-            className="w-20 accent-blue-500"
+            className="w-16 accent-blue-500"
           />
+          
+          <Menu as="div" className="relative">
+            <Menu.Button className="p-1 text-gray-600 hover:text-blue-500 transition-colors">
+              <FaEllipsisV className="w-4 h-4" />
+            </Menu.Button>
+            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={onNewFileClick}
+                    className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
+                  >
+                    Upload New File
+                  </button>
+                )}
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
         </div>
       </div>
     </div>

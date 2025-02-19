@@ -48,7 +48,7 @@ export const TranscriptionDisplay = ({
   paragraphs,
   currentTime,
   onWordClick,
-  verticalOffset = 25,
+  verticalOffset = 0,
 }: TranscriptionDisplayProps) => {
   // Reference to the scrollable container element
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -167,13 +167,13 @@ export const TranscriptionDisplay = ({
         Auto-Center {autoCenterEnabled ? 'On' : 'Off'}
       </button>
 
-      <div className="bg-white rounded-lg shadow-md relative h-[600px]">
+      <div className="bg-white rounded-lg shadow-md relative h-[calc(100vh-12rem)]">
       <div 
         ref={scrollContainerRef}
         className="absolute inset-0 overflow-y-auto scroll-smooth"
         style={{ 
-          paddingTop: '10%',
-          paddingBottom: '25%'
+          paddingTop: '15%',
+          paddingBottom: '15%'
         }}
       >
       {/* Paragraph view */}

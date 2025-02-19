@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { AudioPlayer } from './components/AudioPlayer';
 import { TranscriptionDisplay } from './components/TranscriptionDisplay';
+import { WelcomeScreen } from './components/WelcomeScreen';
 
 interface Word {
   word: string;
@@ -55,17 +56,14 @@ const Home = () => {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Create object URL for audio playback
-    const url = URL.createObjectURL(file);
-    setAudioUrl(url);
-
-    // Process with Deepgram
+  const processFile = async (file: File) => {
     setIsLoading(true);
     try {
+      // Create object URL for audio playback
+      const url = URL.createObjectURL(file);
+      setAudioUrl(url);
+
+      // Process with Deepgram
       const formData = new FormData();
       formData.append('file', file);
 
@@ -95,6 +93,12 @@ const Home = () => {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
   const handleWordClick = useCallback((time: number) => {
     const audioElement = document.querySelector('audio');
     if (audioElement) {
@@ -102,15 +106,68 @@ const Home = () => {
     }
   }, []);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleNewFileClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
   return (
     <main className="min-h-screen p-8">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {!audioUrl && !isLoading && (
+        <WelcomeScreen 
+          onFileSelect={processFile}
+          isLoading={isLoading}
+        />
+      )}
+
+      {isLoading && (
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="text-2xl font-semibold text-gray-800">
+              Processing your audio...
+            </div>
+            <div className="text-gray-500">
+              This may take a few moments
+            </div>
+          </div>
+        </div>
+      )}
+
+      {audioUrl && !isLoading && (
+        <div className="max-w-2xl mx-auto space-y-6">
+          <AudioPlayer
+            audioUrl={audioUrl}
+            onTimeUpdate={setCurrentTime}
+            onNewFileClick={handleNewFileClick}
+          />
+
+          {words.length > 0 && (
+            <TranscriptionDisplay
+              words={words}
+              paragraphs={paragraphs}
+              currentTime={currentTime}
+              onWordClick={handleWordClick}
+            />
+          )}
+        </div>
+      )}
+
       {process.env.NODE_ENV === 'development' && (
-        <div className="max-w-2xl mx-auto mb-4">
+        <div className="fixed bottom-4 right-4 space-x-2">
           <button
             onClick={() => loadSavedTranscription('19720124_atc_03')}
-            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded mr-2"
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm"
           >
-            Load Saved Transcription
+            Load Demo
           </button>
           {hasLastTranscription && (
             <button
@@ -119,47 +176,13 @@ const Home = () => {
                 setWords(data.words);
                 if (data.paragraphs) setParagraphs(data.paragraphs);
               }}
-              className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+              className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm"
             >
-              Load Last Transcription
+              Load Last
             </button>
           )}
         </div>
       )}
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center">Audio Transcription Tool</h1>
-        
-        <div className="mb-8">
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleFileUpload}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        {isLoading && (
-          <div className="text-center py-4">
-            Transcribing audio...
-          </div>
-        )}
-
-        {audioUrl && (
-          <AudioPlayer
-            audioUrl={audioUrl}
-            onTimeUpdate={setCurrentTime}
-          />
-        )}
-
-        {words.length > 0 && (
-          <TranscriptionDisplay
-            words={words}
-            paragraphs={paragraphs}
-            currentTime={currentTime}
-            onWordClick={handleWordClick}
-          />
-        )}
-      </div>
     </main>
   );
 };
