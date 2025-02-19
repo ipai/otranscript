@@ -19,7 +19,7 @@ interface Paragraph {
   end: number;
 }
 
-interface TranscriptionDisplayProps {
+interface TranscriptDisplayProps {
   words: Word[];
   paragraphs?: Paragraph[];
   transcript?: string;
@@ -43,13 +43,13 @@ const AUTO_REACTIVATION_DELAY = 5000;
  */
 const SCROLL_ANIMATION_DURATION = 1000;
 
-export const TranscriptionDisplay = ({
+export const TranscriptDisplay = ({
   words,
   paragraphs,
   currentTime,
   onWordClick,
   verticalOffset = 10 ,
-}: TranscriptionDisplayProps) => {
+}: TranscriptDisplayProps) => {
   // Reference to the scrollable container element
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   

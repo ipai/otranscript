@@ -49,7 +49,7 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
             <div className="relative w-full h-[400px] rounded-xl shadow-2xl overflow-hidden">
               <Image 
                 src="/images/mic.jpg" 
-                alt="Professional microphone" 
+                alt="Mr. microphone"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority

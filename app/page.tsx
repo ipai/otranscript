@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { AudioPlayer } from './components/AudioPlayer';
-import { TranscriptionDisplay } from './components/TranscriptionDisplay';
+import { TranscriptDisplay } from './components/TranscriptDisplay';
 import { WelcomeScreen } from './components/WelcomeScreen';
 
 interface Word {
@@ -29,16 +29,16 @@ const Home = () => {
   const [words, setWords] = useState<Word[]>([]);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasLastTranscription, setHasLastTranscription] = useState(false);
+  const [hasLastTranscript, setHasLastTranscript] = useState(false);
 
   useEffect(() => {
     // Check for active transcription in localStorage
-    const activeTranscription = window.localStorage.getItem('activeTranscription');
+    const activeTranscript = window.localStorage.getItem('activeTranscript');
     const activeAudioUrl = window.localStorage.getItem('activeAudioUrl');
     
-    if (activeTranscription && activeAudioUrl) {
+    if (activeTranscript && activeAudioUrl) {
       try {
-        const data = JSON.parse(activeTranscription);
+        const data = JSON.parse(activeTranscript);
         setWords(data.words);
         if (data.paragraphs) {
           setParagraphs(data.paragraphs);
@@ -47,13 +47,13 @@ const Home = () => {
       } catch (error) {
         console.error('Error restoring transcription state:', error);
         // Clear invalid data
-        window.localStorage.removeItem('activeTranscription');
+        window.localStorage.removeItem('activeTranscript');
         window.localStorage.removeItem('activeAudioUrl');
       }
     }
   }, []);
 
-  const loadSavedTranscription = async (filename: string) => {
+  const loadSavedTranscript = async (filename: string) => {
     try {
       // Load transcription data
       const response = await fetch(`/data/${filename}_transcription.json`);
@@ -91,7 +91,7 @@ const Home = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Transcription failed');
+      if (!response.ok) throw new Error('Transcript loading failed');
 
       const data = await response.json();
       setWords(data.words);
@@ -100,7 +100,7 @@ const Home = () => {
       }
       
       // Save active transcription state
-      window.localStorage.setItem('activeTranscription', JSON.stringify(data));
+      window.localStorage.setItem('activeTranscript', JSON.stringify(data));
     } catch (error) {
       console.error('Error transcribing:', error);
       alert('Failed to transcribe audio');
@@ -170,7 +170,7 @@ const Home = () => {
         <span 
           onClick={() => {
             if (process.env.NODE_ENV === 'development') {
-              loadSavedTranscription('19720124_atc_03');
+              loadSavedTranscript('19720124_atc_03');
             }
           }}
           className="cursor-pointer hover:text-rose-600 transition-colors"
@@ -192,7 +192,7 @@ const Home = () => {
         <WelcomeScreen 
           onFileSelect={processFile}
           isLoading={isLoading}
-          onLoadDemo={() => loadSavedTranscription('19720124_atc_03')}
+          onLoadDemo={() => loadSavedTranscript('19720124_atc_03')}
         />
       )}
 
@@ -218,7 +218,7 @@ const Home = () => {
           />
 
           {words.length > 0 && (
-            <TranscriptionDisplay
+            <TranscriptDisplay
               words={words}
               paragraphs={paragraphs}
               currentTime={currentTime}
