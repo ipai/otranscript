@@ -1,24 +1,24 @@
 import { MenuItem } from '@headlessui/react';
-import { IoCloudUpload, IoPlay, IoRepeat, IoRepeatOutline } from 'react-icons/io5';
+import { IoCloudUpload, IoPlay, IoRepeat, IoRepeatOutline, IoTime } from 'react-icons/io5';
 
 interface MainMenuProps {
   onNewFileClick: () => void;
   onSpeedMenuOpen: () => void;
   onRepeatMenuOpen: () => void;
+  onOffsetMenuOpen: () => void;
   playbackSpeed: number;
   isRepeatEnabled: boolean;
   audioOffset: number;
-  onAudioOffsetChange: (offset: number) => void;
 }
 
 export const MainMenu = ({
   onNewFileClick,
   onSpeedMenuOpen,
   onRepeatMenuOpen,
+  onOffsetMenuOpen,
   playbackSpeed,
   isRepeatEnabled,
   audioOffset,
-  onAudioOffsetChange,
 }: MainMenuProps) => {
   return (
     <div>
@@ -77,18 +77,25 @@ export const MainMenu = ({
           </button>
         )}
       </MenuItem>
-      <div className="px-4 py-2 text-sm text-gray-700 border-t">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Audio Offset (ms)</label>
-        <input
-          type="number"
-          value={audioOffset}
-          onChange={(e) => onAudioOffsetChange(Number(e.target.value))}
-          className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-rose-500"
-          step="10"
-          min="-5000"
-          max="5000"
-        />
-      </div>
+      <MenuItem>
+        {() => (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOffsetMenuOpen();
+            }}
+            className={`group flex w-full items-center px-4 py-2 text-sm data-[focus]:bg-rose-50 ${
+              audioOffset !== 0 ? 'text-rose-600 font-medium' : 'text-gray-700'
+            }`}
+          >
+            <span className="flex items-center w-full">
+              <IoTime className="w-5 h-5 mr-2" />
+              Audio Offset: {audioOffset}
+            </span>
+          </button>
+        )}
+      </MenuItem>
     </div>
   );
 };

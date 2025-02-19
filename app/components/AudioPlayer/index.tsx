@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { IoPause, IoPlay, IoEllipsisVertical } from 'react-icons/io5';
-import { Menu, MenuButton } from '@headlessui/react';
+import { Menu, MenuButton, MenuItems } from '@headlessui/react';
 import { MainMenu } from './MainMenu';
 import { PlaybackSpeedMenu } from './PlaybackSpeedMenu';
 import { RepeatMenu } from './RepeatMenu';
+import { AudioOffsetMenu } from './AudioOffsetMenu';
 import { VolumeControl } from './VolumeControl';
 import { ProgressBar } from './ProgressBar';
 
@@ -24,8 +25,7 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
   const [isRepeatEnabled, setIsRepeatEnabled] = useState(false);
   const [audioOffset, setAudioOffset] = useState(0); // in milliseconds
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [currentSubmenu, setCurrentSubmenu] = useState<'main' | 'speed' | 'repeat'>('main');
-
+  const [currentSubmenu, setCurrentSubmenu] = useState<'main' | 'speed' | 'repeat' | 'offset'>('main');
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -79,6 +79,10 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
   const handleSpeedChange = (speed: number) => {
     setPlaybackSpeed(speed);
     setCurrentSubmenu('main');
+  };
+
+  const handleOffsetChange = (offset: number) => {
+    setAudioOffset(offset);
   };
 
   useEffect(() => {
@@ -151,47 +155,49 @@ export const AudioPlayer = ({ audioUrl, onTimeUpdate, onNewFileClick }: AudioPla
 
         {/* Menu Button */}
         <Menu>
-          {({ open }) => {
-            // Update menu open state
-            if (!open && currentSubmenu !== 'main') {
-              setCurrentSubmenu('main');
-            }
+          <div className="relative ml-1">
+            <MenuButton 
+              onClick={() => {
+                setCurrentSubmenu('main');
+              }}
+              className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <IoEllipsisVertical className="w-5 h-5" />
+            </MenuButton>
 
-            return (
-              <div className="relative ml-1">
-                <MenuButton className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition-colors">
-                  <IoEllipsisVertical className="w-5 h-5" />
-                </MenuButton>
-
-                {/* Menu Items */}
-                <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden">
-                  {currentSubmenu === 'main' ? (
-                    <MainMenu
-                      onNewFileClick={onNewFileClick || (() => {})}
-                      onSpeedMenuOpen={() => setCurrentSubmenu('speed')}
-                      onRepeatMenuOpen={() => setCurrentSubmenu('repeat')}
-                      playbackSpeed={playbackSpeed}
-                      isRepeatEnabled={isRepeatEnabled}
-                      audioOffset={audioOffset}
-                      onAudioOffsetChange={setAudioOffset}
-                    />
-                  ) : currentSubmenu === 'speed' ? (
-                    <PlaybackSpeedMenu
-                      currentSpeed={playbackSpeed}
-                      onSpeedChange={handleSpeedChange}
-                      onBack={() => setCurrentSubmenu('main')}
-                    />
-                  ) : currentSubmenu === 'repeat' ? (
-                    <RepeatMenu
-                      isEnabled={isRepeatEnabled}
-                      onRepeatChange={handleRepeatChange}
-                      onBack={() => setCurrentSubmenu('main')}
-                    />
-                  ) : null}
-                </Menu.Items>
-              </div>
-            );
-          }}
+            {/* Menu Items */}
+            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden">
+              {currentSubmenu === 'main' ? (
+                <MainMenu
+                  onNewFileClick={onNewFileClick || (() => {})}
+                  onSpeedMenuOpen={() => setCurrentSubmenu('speed')}
+                  onRepeatMenuOpen={() => setCurrentSubmenu('repeat')}
+                  onOffsetMenuOpen={() => setCurrentSubmenu('offset')}
+                  playbackSpeed={playbackSpeed}
+                  isRepeatEnabled={isRepeatEnabled}
+                  audioOffset={audioOffset}
+                />
+              ) : currentSubmenu === 'speed' ? (
+                <PlaybackSpeedMenu
+                  currentSpeed={playbackSpeed}
+                  onSpeedChange={handleSpeedChange}
+                  onBack={() => setCurrentSubmenu('main')}
+                />
+              ) : currentSubmenu === 'repeat' ? (
+                <RepeatMenu
+                  isEnabled={isRepeatEnabled}
+                  onRepeatChange={handleRepeatChange}
+                  onBack={() => setCurrentSubmenu('main')}
+                />
+              ) : currentSubmenu === 'offset' ? (
+                <AudioOffsetMenu
+                  offset={audioOffset}
+                  onOffsetChange={handleOffsetChange}
+                  onBack={() => setCurrentSubmenu('main')}
+                />
+              ) : null}
+            </MenuItems>
+          </div>
         </Menu>
       </div>
     </div>
