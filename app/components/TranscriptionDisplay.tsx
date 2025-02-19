@@ -48,7 +48,7 @@ export const TranscriptionDisplay = ({
   paragraphs,
   currentTime,
   onWordClick,
-  verticalOffset = 0,
+  verticalOffset = 10 ,
 }: TranscriptionDisplayProps) => {
   // Reference to the scrollable container element
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -161,13 +161,14 @@ export const TranscriptionDisplay = ({
           ${autoCenterEnabled 
             ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' 
             : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}
+          z-0
         `}
         aria-label={`Toggle auto-centering ${autoCenterEnabled ? 'off' : 'on'}`}
       >
         Auto-Center {autoCenterEnabled ? 'On' : 'Off'}
       </button>
 
-      <div className="bg-white rounded-lg shadow-md relative h-[calc(100vh-12rem)]">
+      <div className="bg-white rounded-lg shadow-md relative h-[calc(100vh-10.5rem)]">
       <div 
         ref={scrollContainerRef}
         className="absolute inset-0 overflow-y-auto scroll-smooth"

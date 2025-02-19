@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { AudioPlayer } from './components/AudioPlayer';
 import { TranscriptionDisplay } from './components/TranscriptionDisplay';
 import { WelcomeScreen } from './components/WelcomeScreen';
@@ -55,6 +56,7 @@ const Home = () => {
       alert('Failed to load saved transcription');
     }
   };
+
 
   const processFile = async (file: File) => {
     setIsLoading(true);
@@ -112,8 +114,41 @@ const Home = () => {
     fileInputRef.current?.click();
   }, []);
 
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      // Set the dropped file as the selected file
+      const fileInput = fileInputRef.current;
+      if (fileInput) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(acceptedFiles[0]);
+        fileInput.files = dataTransfer.files;
+        // Trigger change event to process the file
+        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'audio/*': []
+    },
+    multiple: false,
+    noClick: true
+  });
+
   return (
-    <main className="min-h-screen p-8">
+    <main {...getRootProps()} className="min-h-screen p-8 relative pb-16">
+      {isDragActive && (
+        <div className="fixed inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-50">
+          <div className="text-xl font-medium text-blue-600">
+            Drop your audio file here
+          </div>
+        </div>
+      )}
+      <div className="fixed bottom-0 left-0 right-0 text-center py-3 text-sm text-gray-400">
+        © {new Date().getFullYear()} OTranscript. All rights reserved.
+      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -126,6 +161,13 @@ const Home = () => {
         <WelcomeScreen 
           onFileSelect={processFile}
           isLoading={isLoading}
+          onLoadDemo={() => loadSavedTranscription('19720124_atc_03')}
+          onLoadLast={() => {
+            const data = JSON.parse(window.localStorage.getItem('lastTranscriptionData')!);
+            setWords(data.words);
+            if (data.paragraphs) setParagraphs(data.paragraphs);
+          }}
+          hasLastTranscription={hasLastTranscription}
         />
       )}
 
@@ -161,28 +203,7 @@ const Home = () => {
         </div>
       )}
 
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 space-x-2">
-          <button
-            onClick={() => loadSavedTranscription('19720124_atc_03')}
-            className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm"
-          >
-            Load Demo
-          </button>
-          {hasLastTranscription && (
-            <button
-              onClick={() => {
-                const data = JSON.parse(window.localStorage.getItem('lastTranscriptionData')!);
-                setWords(data.words);
-                if (data.paragraphs) setParagraphs(data.paragraphs);
-              }}
-              className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm"
-            >
-              Load Last
-            </button>
-          )}
-        </div>
-      )}
+
     </main>
   );
 };
