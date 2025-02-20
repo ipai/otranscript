@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import { upload } from '@vercel/blob/client';
 import { useDropzone } from 'react-dropzone';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { UploadProgress } from './components/UploadProgress';
@@ -33,14 +34,28 @@ export default function Home() {
         setUploadProgress(prev => prev >= 90 ? prev : prev + 10);
       }, 500);
 
+      // Upload file directly to Vercel Blob
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+      });
+
+      if (!blob?.url) {
+        throw new Error('Failed to upload file');
+      }
+
+      // Process the uploaded file
       const response = await fetch('/api/process', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audioUrl: blob.url }),
       });
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`Upload failed: ${errorData}`);
+        throw new Error(`Processing failed: ${errorData}`);
       }
 
       // Show upload completion
