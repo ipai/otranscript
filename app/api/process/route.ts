@@ -47,8 +47,17 @@ async function processUpload(audioUrl: string) {
   }
 
   try {
-    // Calculate SHA256 hash from URL
-    const hash = createHash('sha256').update(audioUrl).digest('hex');
+    // Fetch the audio file from the URL
+    const response = await fetch(audioUrl);
+    if (!response.ok) {
+      throw new Error('Failed to fetch audio file');
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const uint8Array = new Uint8Array(buffer);
+
+    // Calculate SHA256 hash from file content
+    const hash = createHash('sha256').update(uint8Array).digest('hex');
 
     // Check if file already exists
     const existingTranscript = await db.select()
@@ -71,14 +80,6 @@ async function processUpload(audioUrl: string) {
       });
     }
 
-    // Fetch the audio file from the URL
-    const response = await fetch(audioUrl);
-    if (!response.ok) {
-      throw new Error('Failed to fetch audio file');
-    }
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     // Generate transcript using Deepgram
     const transcription = await transcribeAudio(buffer, process.env.DEEPGRAM_API_KEY);
     
@@ -93,9 +94,16 @@ async function processUpload(audioUrl: string) {
       audioUrl: audioUrl,
       transcriptUrl: transcriptBlob.url,
       audioSha256: hash,
-      timesRequested: 1,
+      timesRequested: 0, // Start at 0 since we'll increment it below
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     }).returning();
+
+    // Increment times_requested for the new record
+    await db.update(transcripts)
+      .set({
+        timesRequested: 1
+      })
+      .where(eq(transcripts.id, record.id));
 
     return NextResponse.json({
       id: record.id,
