@@ -1,5 +1,5 @@
 interface UploadProgressProps {
-  stage: 'uploading' | 'transcribing' | 'done';
+  stage: 'checking' | 'uploading' | 'transcribing' | 'done';
   uploadProgress: number;
 }
 
@@ -8,22 +8,19 @@ export function UploadProgress({ stage, uploadProgress }: UploadProgressProps) {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-2 flex justify-between items-center">
         <span className="text-sm font-medium text-gray-700">
+          {stage === 'checking' && 'Checking audio file...'}
           {stage === 'uploading' && 'Uploading audio file...'}
           {stage === 'transcribing' && 'Generating transcript...'}
           {stage === 'done' && 'Complete!'}
         </span>
-        {stage === 'uploading' && (
-          <span className="text-sm text-gray-500">{Math.round(uploadProgress)}%</span>
-        )}
+        <span className="text-sm text-gray-500">{Math.round(uploadProgress)}%</span>
       </div>
       
       <div className="w-full bg-gray-200 rounded-full h-2.5">
         <div
           className="bg-rose-600 h-2.5 rounded-full transition-all duration-300"
           style={{
-            width: `${stage === 'done' ? 100 : 
-                    stage === 'transcribing' ? 100 : 
-                    uploadProgress}%`,
+            width: `${uploadProgress}%`,
             transitionProperty: 'width',
           }}
         />
@@ -31,6 +28,14 @@ export function UploadProgress({ stage, uploadProgress }: UploadProgressProps) {
 
       {/* Progress steps */}
       <div className="mt-4 flex justify-between">
+        <div className="flex flex-col items-center">
+          <div className={`w-4 h-4 rounded-full mb-1 ${
+            stage === 'checking' ? 'bg-rose-600 animate-pulse' :
+            stage === 'uploading' || stage === 'transcribing' || stage === 'done' ? 'bg-rose-600' : 
+            'bg-gray-300'
+          }`} />
+          <span className="text-xs text-gray-500">Check</span>
+        </div>
         <div className="flex flex-col items-center">
           <div className={`w-4 h-4 rounded-full mb-1 ${
             stage === 'uploading' ? 'bg-rose-600 animate-pulse' :

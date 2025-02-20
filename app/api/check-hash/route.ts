@@ -17,17 +17,11 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (existingTranscript.length > 0) {
-      // Update times_requested and renew expiration
-      await db.update(transcripts)
-        .set({
-          timesRequested: (existingTranscript[0].timesRequested ?? 0) + 1,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        })
-        .where(eq(transcripts.id, existingTranscript[0].id));
-
+      // Only return that the transcript exists, don't increment counter yet
       return NextResponse.json({
         exists: true,
-        transcript: existingTranscript[0]
+        transcript: existingTranscript[0],
+        shouldIncrement: true // Flag to indicate we should increment later
       });
     }
 

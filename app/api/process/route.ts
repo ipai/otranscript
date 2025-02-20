@@ -25,7 +25,7 @@ export const runtime = 'nodejs';
 
 // Configure body parser for large files
 export async function POST(request: NextRequest) {
-  const { audioUrl } = await request.json();
+  const { audioUrl, hash } = await request.json();
 
   if (!audioUrl) {
     return NextResponse.json(
@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return processUpload(audioUrl);
+  return processUpload(audioUrl, hash);
 }
 
-async function processUpload(audioUrl: string) {
+async function processUpload(audioUrl: string, providedHash?: string) {
   // Verify environment configuration
   if (!process.env.DEEPGRAM_API_KEY || !process.env.DATABASE_URL) {
     return NextResponse.json(
@@ -54,10 +54,12 @@ async function processUpload(audioUrl: string) {
     }
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const uint8Array = new Uint8Array(buffer);
 
-    // Calculate SHA256 hash from file content
-    const hash = createHash('sha256').update(uint8Array).digest('hex');
+    // Use provided hash or calculate new one
+    const hash = providedHash || (() => {
+      const uint8Array = new Uint8Array(buffer);
+      return createHash('sha256').update(uint8Array).digest('hex');
+    })();
 
     // Check if file already exists
     const existingTranscript = await db.select()
@@ -66,17 +68,10 @@ async function processUpload(audioUrl: string) {
       .limit(1);
 
     if (existingTranscript.length > 0) {
-      // Update times_requested and renew expiration for existing transcript
-      await db.update(transcripts)
-        .set({
-          timesRequested: (existingTranscript[0].timesRequested ?? 0) + 1,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Renew for 7 days
-        })
-        .where(eq(transcripts.id, existingTranscript[0].id));
-
+      // Just return the existing transcript, don't increment counter
       return NextResponse.json({
         id: existingTranscript[0].id,
-        message: 'File already processed, expiration renewed'
+        message: 'File already processed'
       });
     }
 
@@ -94,7 +89,6 @@ async function processUpload(audioUrl: string) {
       audioUrl: audioUrl,
       transcriptUrl: transcriptBlob.url,
       audioSha256: hash,
-      timesRequested: 0, // Start at 0 since we'll increment it below
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     }).returning();
 

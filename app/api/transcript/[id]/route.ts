@@ -53,14 +53,6 @@ export async function GET(
       );
     }
 
-    // Increment times requested
-    await db
-      .update(transcripts)
-      .set({
-        timesRequested: (record.timesRequested ?? 0) + 1
-      })
-      .where(eq(transcripts.id, id));
-
     // Fetch transcript content
     const transcriptResponse = await fetch(record.transcriptUrl);
     const transcript = await transcriptResponse.json();
