@@ -49,7 +49,8 @@ export async function transcribeAudio(audioBuffer: Buffer, apiKey: string): Prom
         detect_language: true,
         punctuate: true,
         paragraphs: true,
-        utterances: false
+        utterances: false,
+        diarize: true,
       }
     );
 
