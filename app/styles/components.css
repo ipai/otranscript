@@ -47,10 +47,27 @@
 .feature-card {
   @apply p-6
     rounded-lg
-    bg-white
+    backdrop-blur-sm
+    bg-white/60
+    hover:bg-white/90
     shadow-md
-    transition-shadow
-    hover:shadow-lg;
+    transition-all
+    duration-300
+    ease-out
+    hover:scale-[1.02]
+    hover:shadow-xl
+    hover:shadow-rose-100/50
+    hover:-translate-y-1
+    relative;
+}
+
+.feature-card::before {
+  content: '';
+  @apply absolute inset-0 rounded-lg bg-gradient-to-br from-rose-100/0 to-rose-200/0 opacity-0 transition-opacity duration-300 pointer-events-none;
+}
+
+.feature-card:hover::before {
+  @apply opacity-100;
 }
 
 .feature-card-title {

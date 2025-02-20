@@ -15,7 +15,7 @@ interface Sentence {
 interface Paragraph {
   sentences: Sentence[];
   num_words: number;
-  start: number;
+  start: number; 
   end: number;
 }
 
@@ -161,10 +161,10 @@ export const TranscriptDisplay = ({
         Auto-Center {autoCenterEnabled ? 'On' : 'Off'}
       </button>
 
-      <div className="transcription-container">
+      <div className="transcription-container backdrop-blur-sm bg-white/60 rounded-lg shadow-lg border border-white/20">
       <div 
         ref={scrollContainerRef}
-        className="absolute inset-0 overflow-y-auto scroll-smooth"
+        className="absolute inset-0 overflow-y-auto scroll-smooth rounded-lg"
         style={{ 
           paddingTop: '15%',
           paddingBottom: '15%'

@@ -69,7 +69,7 @@ export default function TranscriptPage({ params }: { params: { id: string } }) {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-rose-100 via-white to-rose-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
           <p className="text-gray-600 mb-4">{error}</p>
@@ -83,7 +83,7 @@ export default function TranscriptPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-rose-100 via-white to-rose-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto" />
           <p className="text-gray-600">Loading transcript...</p>
@@ -93,7 +93,7 @@ export default function TranscriptPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-gradient-to-b from-rose-100 via-white to-rose-50">
       <main className="p-8 relative pb-16">
         <div className="container mx-auto max-w-3xl flex flex-col">
           <AudioPlayer
