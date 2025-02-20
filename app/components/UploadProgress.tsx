@@ -5,7 +5,7 @@ interface UploadProgressProps {
 
 export function UploadProgress({ stage, uploadProgress }: UploadProgressProps) {
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md mx-auto">
       <div className="mb-2 flex justify-between items-center">
         <span className="text-sm font-medium text-gray-700">
           {stage === 'uploading' && 'Uploading audio file...'}

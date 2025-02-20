@@ -1,24 +1,84 @@
-/* Feature Cards */
+/**
+ * Component Styles
+ * --------------
+ * Organization follows these principles:
+ * 1. Components are grouped by feature/section
+ * 2. Within each component:
+ *    - Layout & Position
+ *    - Dimensions & Spacing
+ *    - Typography
+ *    - Colors & Backgrounds
+ *    - Borders & Shadows
+ *    - Transitions & Animations
+ *    - States (hover, active, etc.)
+ */
+
+/* Welcome Screen Components
+   ----------------------- */
+.welcome-title {
+  @apply text-6xl font-extrabold leading-tight
+    bg-gradient-to-r from-rose-800 via-rose-600 to-amber-500
+    bg-clip-text text-transparent
+    mb-6;
+}
+
+.welcome-subtitle {
+  @apply text-sm uppercase tracking-wider
+    font-semibold
+    text-rose-700;
+}
+
+.welcome-description {
+  @apply text-xl leading-relaxed
+    font-light
+    text-gray-700;
+}
+
+.welcome-highlight {
+  @apply font-medium text-rose-700;
+}
+
+.welcome-highlight-alt {
+  @apply font-medium text-amber-700;
+}
+
+/* Feature Cards
+   ------------ */
 .feature-card {
-  @apply p-6 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow;
+  @apply p-6
+    rounded-lg
+    bg-white
+    shadow-md
+    transition-shadow
+    hover:shadow-lg;
 }
 
 .feature-card-title {
-  @apply mb-3 text-lg font-bold tracking-tight;
+  @apply text-lg tracking-tight
+    font-bold
+    mb-3;
 }
 
 .feature-card-description {
-  @apply text-gray-600 font-light mb-3;
+  @apply font-light
+    text-gray-600
+    mb-3;
 }
 
 .feature-card-subtitle {
-  @apply text-gray-500 text-sm;
+  @apply text-sm text-gray-500;
 }
 
-/* Upload Zone */
+/* Upload Zone
+   ---------- */
 .upload-zone {
-  @apply w-full max-w-xl p-8 rounded-lg border transition-colors duration-200 cursor-pointer 
-    flex flex-col items-center justify-center space-y-4 mt-16;
+  @apply flex flex-col items-center justify-center
+    w-full max-w-xl
+    mt-16 p-8 space-y-4
+    rounded-lg
+    border
+    cursor-pointer
+    transition-colors duration-200;
 }
 
 .upload-zone-active {
@@ -26,20 +86,33 @@
 }
 
 .upload-zone-inactive {
-  @apply border-gray-200 hover:border-rose-500 hover:bg-gray-50;
+  @apply border-gray-200
+    hover:border-rose-500 hover:bg-gray-50;
 }
 
-/* Transcription Display */
+/* Transcription Display
+   -------------------- */
 .transcription-container {
-  @apply bg-white rounded-lg shadow-md relative h-[calc(100vh-11rem)];
+  @apply relative
+    h-[calc(100vh-11rem)]
+    rounded-lg
+    bg-white
+    shadow-md;
 }
 
 .word-highlight {
-  @apply cursor-pointer inline-block text-gray-900 px-0.5 py-0.5 rounded transition-colors duration-200;
+  @apply inline-block
+    px-0.5 py-0.5
+    rounded
+    text-gray-900
+    cursor-pointer
+    transition-colors duration-200;
 }
 
 .word-highlight-active {
-  @apply bg-rose-100 text-rose-600 font-medium;
+  @apply font-medium
+    bg-rose-100
+    text-rose-600;
 }
 
 .word-highlight-inactive {
@@ -47,37 +120,31 @@
 }
 
 .auto-center-button {
-  @apply absolute right-4 top-4 z-20 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-    border border-amber-500/50 text-amber-500 backdrop-blur-sm
-    bg-white/30 shadow-sm hover:shadow-md hover:bg-white/50
-    w-[140px] text-center;
+  @apply absolute right-4 top-4 z-20
+    flex items-center justify-center
+    w-[140px]
+    px-3 py-1.5
+    text-sm font-medium
+    rounded-full
+    border border-amber-500/50
+    text-amber-500
+    bg-white/30
+    backdrop-blur-sm
+    shadow-sm
+    transition-all
+    hover:shadow-md hover:bg-white/50;
 }
 
 .auto-center-active {
-  @apply bg-amber-500/90 text-white hover:bg-amber-500 border-transparent backdrop-blur-md;
+  @apply border-transparent
+    bg-amber-500/90
+    text-white
+    backdrop-blur-md
+    hover:bg-amber-500;
 }
 
 .auto-center-inactive {
-  @apply bg-gray-100 text-gray-800 hover:bg-gray-200;
-}
-
-/* Welcome Screen */
-.welcome-title {
-  @apply text-6xl font-extrabold mb-6 bg-gradient-to-r from-rose-800 via-rose-600 to-amber-500 bg-clip-text text-transparent leading-tight;
-}
-
-.welcome-subtitle {
-  @apply text-sm font-semibold tracking-wider text-rose-700 uppercase;
-}
-
-.welcome-description {
-  @apply text-xl text-gray-700 leading-relaxed font-light;
-}
-
-.welcome-highlight {
-  @apply text-rose-700 font-medium;
-}
-
-.welcome-highlight-alt {
-  @apply text-amber-700 font-medium;
+  @apply bg-gray-100
+    text-gray-800
+    hover:bg-gray-200;
 }

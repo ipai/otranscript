@@ -96,8 +96,8 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen relative">
-      <main {...getRootProps()} className="p-8 relative pb-16">
+    <div className="min-h-screen w-full relative">
+      <main {...getRootProps()} className="relative">
       {isDragActive && (
         <div className="fixed inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-50">
           <div className="text-xl font-medium text-blue-600">
@@ -114,19 +114,19 @@ export default function Home() {
         className="hidden"
       />
 
-      <div className="h-screen flex flex-col">
+      <div className="flex flex-col">
         {!showProgress ? (
           <WelcomeScreen 
             onFileSelect={processFile}
             isLoading={isLoading}
             onLoadDemo={() => {
               // Redirect to demo transcript
-              window.location.href = '/transcript/19720124_atc_03';
+              window.location.href = '/transcript/demo';
             }}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center p-8">
-            <div className="w-full max-w-xl mx-auto">
+            <div className="w-full max-w-xl mx-auto px-4">
               <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
                 Processing Your Audio File
               </h2>
