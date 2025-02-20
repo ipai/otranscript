@@ -71,7 +71,13 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
-// See "Matching Paths" below to learn more
+// Configure middleware matching and options
 export const config = {
-  matcher: "/api/authenticate",
+  matcher: ["/api/authenticate", "/api/process"],
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb",
+    },
+    responseLimit: "50mb",
+  },
 };

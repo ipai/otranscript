@@ -18,13 +18,9 @@ import { Buffer } from 'buffer';
  * @param request NextRequest containing audio file in FormData
  * @returns Transcript ID for accessing the processed content
  */
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb', // Set size limit to 50MB
-    },
-  },
-};
+// Configure route options using new App Router syntax
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   // Verify environment configuration
