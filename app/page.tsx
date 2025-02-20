@@ -19,16 +19,45 @@ export default function Home() {
    * 
    * @param file The audio file to process
    */
+  const calculateSHA256 = async (file: File): Promise<string> => {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
   const processFile = async (file: File) => {
     setIsLoading(true);
     setShowProgress(true);
     setUploadProgress(0);
     
     try {
-      setUploadStage('uploading');
-      const formData = new FormData();
-      formData.append('file', file);
+      // Calculate hash first
+      const hash = await calculateSHA256(file);
 
+      // Check if file already exists
+      const checkResponse = await fetch('/api/check-hash', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash }),
+      });
+
+      if (!checkResponse.ok) {
+        throw new Error('Failed to check file hash');
+      }
+
+      const { exists, transcript } = await checkResponse.json();
+
+      if (exists && transcript) {
+        // File already exists, redirect to transcript
+        window.location.href = `/transcript/${transcript.id}`;
+        return;
+      }
+
+      setUploadStage('uploading');
+      
       // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => prev >= 90 ? prev : prev + 10);
