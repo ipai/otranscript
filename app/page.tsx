@@ -38,6 +38,11 @@ export default function Home() {
         body: formData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Upload failed: ${errorData}`);
+      }
+
       // Show upload completion
       clearInterval(progressInterval);
       setUploadProgress(100);
