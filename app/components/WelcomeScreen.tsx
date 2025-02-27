@@ -28,9 +28,9 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-rose-100 via-white to-rose-50">
-      <section className="flex-none px-12 py-16 bg-gradient-to-b from-rose-100/50 to-transparent">
+      <section className="flex-none px-4 md:px-12 py-16 bg-gradient-to-b from-rose-100/50 to-transparent">
         <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-2 items-center gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
             <div className="text-left">
               <div className="space-y-6">
                 <p className="welcome-subtitle">
@@ -64,30 +64,30 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
         </div>
       </section>
 
-      <section className="flex-none px-12 py-16 bg-gradient-to-b from-transparent via-white/80 to-transparent">
+      <section className="flex-none px-4 md:px-12 py-16 bg-gradient-to-b from-transparent via-white/80 to-transparent">
         <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-3 gap-8">
-            <div className="feature-card group p-8 relative">
-              <div className="absolute -top-6 -left-6 w-16 h-16 rounded-full bg-rose-700/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="feature-card group p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-rose-700/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
                 <MdOutlineTimeline className="h-8 w-8 text-white" />
               </div>
-              <div className="mt-4 feature-card-title text-rose-700">Quick Navigation</div>
+              <div className="mt-8 feature-card-title text-rose-700">Quick Navigation</div>
               <p className="feature-card-description">Instantly jump to any moment in your audio with a single click. No more tedious scrubbing or guessing timestamps.</p>
               <p className="feature-card-subtitle">Perfect for interviews, lectures, and meeting notes.</p>
             </div>
-            <div className="feature-card group p-8 relative">
-              <div className="absolute -top-6 -left-6 w-16 h-16 rounded-full bg-amber-700/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+            <div className="feature-card group p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-amber-700/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
                 <FaRegClock className="h-8 w-8 text-white" />
               </div>
-              <div className="mt-4 feature-card-title text-amber-700">Time-Saving</div>
+              <div className="mt-8 feature-card-title text-amber-700">Time-Saving</div>
               <p className="feature-card-description">Transform hours of audio into searchable text in minutes. Find key moments and quotes with unprecedented speed.</p>
               <p className="feature-card-subtitle">Ideal for researchers, journalists, and content creators.</p>
             </div>
-            <div className="feature-card group p-8 relative">
-              <div className="absolute -top-6 -left-6 w-16 h-16 rounded-full bg-rose-600/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
+            <div className="feature-card group p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-rose-600/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-lg">
                 <HiOutlineCursorClick className="h-8 w-8 text-white" />
               </div>
-              <div className="mt-4 feature-card-title text-rose-600">Interactive Experience</div>
+              <div className="mt-8 feature-card-title text-rose-600">Interactive Experience</div>
               <p className="feature-card-description">Watch text highlight as audio plays. Click any word to jump to that moment. Your audio comes alive with synchronized text.</p>
               <p className="feature-card-subtitle">Essential for podcasters, students, and accessibility.</p>
             </div>
@@ -95,7 +95,7 @@ export const WelcomeScreen = ({ onFileSelect, isLoading, onLoadDemo }: WelcomeSc
         </div>
       </section>
 
-      <section className="flex-none px-12 py-24 bg-gradient-to-b from-transparent to-rose-50/30">
+      <section className="flex-none px-4 md:px-12 py-24 bg-gradient-to-b from-transparent to-rose-50/30">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold text-gray-900">Ready to Get Started?</h2>
