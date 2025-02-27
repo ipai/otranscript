@@ -55,5 +55,9 @@
       "pre-commit": "pretty-quick --staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "cross-spawn": ">=7.0.5"
   }
 }
